@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peer-to-Peer Chat</title>
+    <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        #chat { width: 300px; margin: 20px auto; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; }
+        input, button { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Peer-to-Peer Chat</h2>
+    <p>Your ID: <span id="myId">...</span></p>
+    <input type="text" id="peerId" placeholder="Enter peer ID">
+    <button onclick="connectPeer()">Connect</button>
+    <div id="chat"></div>
+    <input type="text" id="message" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+    
+    <script>
+        const peer = new Peer();
+        let conn;
+
+        peer.on('open', id => document.getElementById('myId').innerText = id);
+        peer.on('connection', connection => {
+            conn = connection;
+            setupConnection();
+        });
+
+        function connectPeer() {
+            const peerId = document.getElementById('peerId').value;
+            conn = peer.connect(peerId);
+            setupConnection();
+        }
+
+        function setupConnection() {
+            conn.on('data', data => {
+                document.getElementById('chat').innerHTML += `<p><b>Peer:</b> ${data}</p>`;
+            });
+        }
+
+        function sendMessage() {
+            const message = document.getElementById('message').value;
+            if (conn && message.trim() !== '') {
+                conn.send(message);
+                document.getElementById('chat').innerHTML += `<p><b>You:</b> ${message}</p>`;
+                document.getElementById('message').value = '';
+            }
+        }
+    </script>
+</body>
+</html>
