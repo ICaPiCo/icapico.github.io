@@ -3,4 +3,14 @@ document.onkeypress = function (e) {
     // use e.keyCode
 };
 
-function (e)
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelector("form").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+        
+        let selectedValue = document.getElementById("website").value;
+        
+        if (selectedValue) {
+            window.location.href = selectedValue;
+        }
+    });
+});
