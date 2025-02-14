@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Racing Car</title>
+    <style>
+        body {
+            height: 100vh;
+            /*overflow: hidden;*/
+            margin: 0;
+        }
+        .car {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <img id="car" class="car" src="race-car.png" width="100">
+
+    <script>
+        let angle = 0;
+        let speed = 0;
+        let acceleration = 0.6;
+        let deceleration = 0.2;
+        let maxSpeed = 5000000;
+        let keys = {};
+
+        document.addEventListener("keydown", (event) => {
+            keys[event.key] = true;
+        });
+
+        document.addEventListener("keyup", (event) => {
+            keys[event.key] = false;
+        });
+
+        function gameLoop() {
+            const car = document.getElementById("car");
+            let rect = car.getBoundingClientRect();
+
+            if (keys["ArrowUp"]) {
+                speed = Math.min(speed + acceleration, maxSpeed);
+            } else {
+                speed = Math.max(speed - deceleration, 0);
+            }
+
+            if (keys["ArrowLeft"]) {
+                angle -= speed;
+            }
+            if (keys["ArrowRight"]) {
+                angle += speed * acceleration;
+            }
+
+            let radian = (angle) * (Math.PI / 180);
+            let moveX = Math.cos(radian) * speed;
+            let moveY = Math.sin(radian) * speed;
+            
+            car.style.left = Math.max(0, Math.min(window.innerWidth - rect.width, car.offsetLeft + moveX)) + "px";
+            car.style.top = Math.max(0, Math.min(window.innerHeight - rect.height, car.offsetTop + moveY)) + "px";
+            car.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

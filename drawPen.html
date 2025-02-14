@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Impossible img</title>
+    <style>
+        body {
+            height: 100vh;
+            overflow: hidden;
+        }
+        #img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: top 0.1s, left 0.1s;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <p id="mouseX"> MouseX</p>
+    <p id="mouseY"> MouseY</p>
+    <p id="distance"> Distance from Object</p>
+    <img id="img" src="pencil.png" width="8vw">
+
+    <script>
+        document.addEventListener('mousemove', (event) => {
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+            
+            document.getElementById("mouseX").innerHTML = " MouseX: " + mouseX;
+            document.getElementById("mouseY").innerHTML = " MouseY: " + mouseY;
+
+            const img = document.getElementById("img");
+            const imgRect = img.getBoundingClientRect();
+            const imgX = imgRect.left + imgRect.width/2;
+            const imgY = imgRect.top + imgRect.height;
+            
+            const distance = Math.sqrt(Math.pow(mouseX - imgX, 2) + Math.pow(mouseY - imgY, 2));
+            document.getElementById("distance").innerHTML = "Distance from Object: " + distance.toFixed(2);
+            
+            const threshold = 1000; // Distance at which the img starts moving
+            if (distance < threshold) {
+                const angle = Math.atan2(imgY - mouseY, imgX - mouseX);
+                const moveX = -(Math.cos(angle) * (distance));
+                const moveY = -(Math.sin(angle) * (distance));
+
+
+                let newLeft = img.offsetLeft + moveX;
+                let newTop = img.offsetTop + moveY;
+                
+                // Prevent img from escaping the viewport
+                newLeft = Math.max(0, Math.min(window.innerWidth - imgRect.width, newLeft));
+                newTop = Math.max(0, Math.min(window.innerHeight - imgRect.height, newTop));
+                
+                img.style.left = newLeft + "px";
+                img.style.top = newTop + "px";
+            }
+        });
+    </script>
+</body>
+</html>

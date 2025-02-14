@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Impossible Button</title>
+    <style>
+        body {
+            height: 100vh;
+            overflow: hidden;
+        }
+        #button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: top 0.1s, left 0.1s;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <p id="mouseX"> MouseX</p>
+    <p id="mouseY"> MouseY</p>
+    <p id="distance"> Distance from Object</p>
+    <button id="button" onclick="alert('Nice Work')" type="button">pencil</button>
+
+    <script>
+        document.addEventListener('mousemove', (event) => {
+            const mouseX = event.clientX;
+            const mouseY = event.clientY;
+            
+            document.getElementById("mouseX").innerHTML = " MouseX: " + mouseX;
+            document.getElementById("mouseY").innerHTML = " MouseY: " + mouseY;
+
+            const button = document.getElementById("button");
+            const buttonRect = button.getBoundingClientRect();
+            const buttonX = buttonRect.left + buttonRect.width / 2;
+            const buttonY = buttonRect.top + buttonRect.height / 2;
+            
+            const distance = Math.sqrt(Math.pow(mouseX - buttonX, 2) + Math.pow(mouseY - buttonY, 2));
+            document.getElementById("distance").innerHTML = "Distance from Object: " + distance.toFixed(2);
+            
+            const threshold = 1000; // Distance at which the button starts moving
+            if (distance < threshold) {
+                const angle = Math.atan2(buttonY - mouseY, buttonX - mouseX);
+                const moveX = -(Math.cos(angle) * (distance));
+                const moveY = -(Math.sin(angle) * (distance));
+                
+                let newLeft = button.offsetLeft + moveX;
+                let newTop = button.offsetTop + moveY;
+                
+                // Prevent button from escaping the viewport
+                newLeft = Math.max(0, Math.min(window.innerWidth - buttonRect.width, newLeft));
+                newTop = Math.max(0, Math.min(window.innerHeight - buttonRect.height, newTop));
+                
+                button.style.left = newLeft + "px";
+                button.style.top = newTop + "px";
+            }
+        });
+    </script>
+</body>
+</html>
