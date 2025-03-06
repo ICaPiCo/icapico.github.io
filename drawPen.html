@@ -21,14 +21,16 @@
 <body>
     <p id="mouseX"> MouseX</p>
     <p id="mouseY"> MouseY</p>
+    <p id="angle"> Angle</p>
     <p id="distance"> Distance from Object</p>
     <img id="img" src="pencil.png" width="8vw">
 
     <script>
+        let angle2 = 0
         document.addEventListener('mousemove', (event) => {
             const mouseX = event.clientX;
             const mouseY = event.clientY;
-            
+
             document.getElementById("mouseX").innerHTML = " MouseX: " + mouseX;
             document.getElementById("mouseY").innerHTML = " MouseY: " + mouseY;
 
@@ -39,13 +41,18 @@
             
             const distance = Math.sqrt(Math.pow(mouseX - imgX, 2) + Math.pow(mouseY - imgY, 2));
             document.getElementById("distance").innerHTML = "Distance from Object: " + distance.toFixed(2);
+
+            let angle2 = Math.sin(distance)
+
+            document.getElementById("angle").innerHTML = " Angle: " + angle2;
             
             const threshold = 1000; // Distance at which the img starts moving
             if (distance < threshold) {
                 const angle = Math.atan2(imgY - mouseY, imgX - mouseX);
                 const moveX = -(Math.cos(angle) * (distance));
                 const moveY = -(Math.sin(angle) * (distance));
-
+                
+                img.style.transform = `rotate(${angle2*5}deg)`;
 
                 let newLeft = img.offsetLeft + moveX;
                 let newTop = img.offsetTop + moveY;
