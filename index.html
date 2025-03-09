@@ -1,26 +1,196 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>My website</title>
-    </head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Password Generator</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
 
-    <body>
-        <form action="script.js" style="text-align: right;">
-            <label for="website">Where to go ?</label>
+.container {
+    text-align: center;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 10px;
+    width: 350px;
+    box-shadow: 0 0 15px rgb(123, 0, 255);
+}
 
-            <select name="website" id="website">
-              <option value="chat.html">Chat page</option>
-              <option value="lucar.html">Lucar</option>
-            </select>
-            <input type="submit" value="Go!">
-        </form>
-        
-        <button onclick="location.href='party.html'" type="button">Chat page</button>
-        <button onclick="location.href='lucar.html'" type="button">Lucar page</button>
-        <center>
-            <h1>This is a test</h1>
-            <p>This is a paragraph.</p>
-        </center>
-    </body>
-    
-</html> 
+h1 {
+    font-size: 22px;
+}
+
+.hidden {
+    display: none;
+}
+
+input {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    background: #333;
+    color: white;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background: #6422ff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #5319e6;
+}
+
+.progress {
+    width: 100%;
+    height: 5px;
+    background: #333;
+    margin-top: 15px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#progressBar {
+    width: 0%;
+    height: 100%;
+    border-radius: 5px;
+    background: rgb(158,0,255);
+    background: linear-gradient(45deg, rgba(158,0,255,1) 0%, rgba(158,0,255,1) 47%, rgba(59,0,255,1) 85%);
+    transition: width 0.5s;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Secure Password Generator</h1>
+        <div id="questionnaire">
+            <p id="question"></p>
+            <input type="text" id="answer" placeholder="Your answer" required>
+            <button id="nextBtn">Next</button>
+            <div class="progress">
+                <div id="progressBar"></div>
+            </div>
+        </div>
+        <div id="result" class="hidden">
+            <h2>Your Secure Password:</h2>
+            <input type="text" id="password" readonly>
+            <button id="copyBtn">Copy</button>
+            <p id="strength"></p>
+        </div>
+    </div>
+    <script>
+const questions = [
+    "What was your first pet's name?",
+    "Name of your sibling (or best friend)?",
+    "What's your favorite geometric shape?",
+    "Name a city you were born in?",
+    "What was your childhood nickname?",
+    "Pick a number between 1-10",
+    "What's your favorite color?",
+    "What is your top priority in life?"
+];
+
+let answers = [];
+let currentQuestion = 0;
+
+const questionEl = document.getElementById("question");
+const answerEl = document.getElementById("answer");
+const nextBtn = document.getElementById("nextBtn");
+const progressBar = document.getElementById("progressBar");
+
+const resultEl = document.getElementById("result");
+const passwordEl = document.getElementById("password");
+const copyBtn = document.getElementById("copyBtn");
+const strengthEl = document.getElementById("strength");
+
+function showQuestion() {
+    questionEl.textContent = questions[currentQuestion];
+    answerEl.value = "";
+    answerEl.focus();
+}
+
+nextBtn.addEventListener("click", () => {
+    const answer = answerEl.value.trim();
+    if (!answer) return alert("Please enter a valid response!");
+
+    answers.push(answer);
+    currentQuestion++;
+
+    progressBar.style.width = `${(currentQuestion / questions.length) * 100}%`;
+
+    if (currentQuestion < questions.length) {
+        showQuestion();
+    } else {
+        generatePassword();
+    }
+});
+
+function generatePassword() {
+    document.getElementById("questionnaire").classList.add("hidden");
+    resultEl.classList.remove("hidden");
+
+    let seed = answers.join('|').toLowerCase();
+    let hash = hashString(seed);
+    let password = transformHash(hash);
+
+    passwordEl.value = password;
+    evaluatePasswordStrength(password);
+}
+
+function hashString(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash &= hash;
+    }
+    return Math.abs(hash).toString(36);
+}
+
+function transformHash(hash) {
+    let base = hash.split('').reverse().join('');
+    let transformed = base.replace(/[aeiou]/gi, char => "@3!10$"["aeiou".indexOf(char.toLowerCase())]);
+    let finalPassword = transformed.substring(0, 12) + "!A1";
+    return finalPassword;
+}
+
+function evaluatePasswordStrength(password) {
+    let strength = 0;
+    if (password.length >= 12) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[@$!%*?&#]/.test(password)) strength++;
+
+    const messages = ["Weak 😢", "Fair 🙂", "Good 😊", "Strong 💪", "Very Strong 🔥"];
+    strengthEl.textContent = `Strength: ${messages[strength]}`;
+}
+
+copyBtn.addEventListener("click", () => {
+    passwordEl.select();
+    document.execCommand("copy");
+    alert("Password copied to clipboard!");
+});
+
+showQuestion();
+    </script>
+</body>
+</html>
